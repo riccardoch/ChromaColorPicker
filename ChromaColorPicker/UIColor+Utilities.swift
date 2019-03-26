@@ -24,7 +24,7 @@
 
 import UIKit
 public extension UIColor{
-    public var hexCode: String {
+    var hexCode: String {
         get{
             let colorComponents = self.cgColor.components!
             if colorComponents.count < 4 {
@@ -35,15 +35,15 @@ public extension UIColor{
     }
     
     //Amount should be between 0 and 1
-    public func lighterColor(_ amount: CGFloat) -> UIColor{
+    func lighterColor(_ amount: CGFloat) -> UIColor{
         return UIColor.blendColors(color: self, destinationColor: UIColor.white, amount: amount)
     }
     
-    public func darkerColor(_ amount: CGFloat) -> UIColor{
+    func darkerColor(_ amount: CGFloat) -> UIColor{
         return UIColor.blendColors(color: self, destinationColor: UIColor.black, amount: amount)
     }
     
-    public static func blendColors(color: UIColor, destinationColor: UIColor, amount : CGFloat) -> UIColor{
+    static func blendColors(color: UIColor, destinationColor: UIColor, amount : CGFloat) -> UIColor{
         var amountToBlend = amount;
         if amountToBlend > 1{
             amountToBlend = 1.0
@@ -75,4 +75,50 @@ public extension UIColor{
         return UIColor(red: r/255.0, green: g/255.0, blue: b/255.0, alpha: alpha)
     }
     
+}
+
+/// Copyable Label
+class CopyableLabel: UILabel {
+    
+    override public var canBecomeFirstResponder: Bool {
+        get {
+            return true
+        }
+    }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        sharedInit()
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        sharedInit()
+    }
+    
+    func sharedInit() {
+        isUserInteractionEnabled = true
+        addGestureRecognizer(UILongPressGestureRecognizer(
+            target: self,
+            action: #selector(showMenu(sender:))
+        ))
+    }
+    
+    override func copy(_ sender: Any?) {
+        UIPasteboard.general.string = text
+        UIMenuController.shared.setMenuVisible(false, animated: true)
+    }
+    
+    @objc func showMenu(sender: Any?) {
+        becomeFirstResponder()
+        let menu = UIMenuController.shared
+        if !menu.isMenuVisible {
+            menu.setTargetRect(bounds, in: self)
+            menu.setMenuVisible(true, animated: true)
+        }
+    }
+    
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        return action == #selector(copy(_:))
+    }
 }

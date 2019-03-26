@@ -101,12 +101,12 @@ open class ChromaColorPicker: UIControl {
         handleLine.strokeColor = UIColor.white.withAlphaComponent(0.2).cgColor
         
         /* Setup Color Hex Label */
-        hexLabel = UILabel()
+        hexLabel = CopyableLabel()
         self.layoutHexLabel() //layout frame
         hexLabel.layer.cornerRadius = 2
         hexLabel.adjustsFontSizeToFitWidth = true
         hexLabel.textAlignment = .center
-        hexLabel.textColor = UIColor(red: 51/255.0, green:51/255.0, blue: 51/255.0, alpha: 0.65)
+        hexLabel.textColor = UIColor(red: 123/255, green: 123/255, blue: 129/255, alpha: 1.0)
         
         /* Setup Shade Slider */
         shadeSlider = ChromaShadeSlider()
@@ -521,7 +521,9 @@ open class ChromaColorPicker: UIControl {
 
 extension ChromaColorPicker: ChromaShadeSliderDelegate{
     public func shadeSliderChoseColor(_ slider: ChromaShadeSlider, color: UIColor) {
-        self.updateCurrentColor(color) //update main controller for selected color
-        self.updateHexLabel()
+        DispatchQueue.main.async {
+            self.updateCurrentColor(color) //update main controller for selected color
+            self.updateHexLabel()
+        }
     }
 }

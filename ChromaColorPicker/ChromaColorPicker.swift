@@ -30,7 +30,7 @@ public protocol ChromaColorPickerDelegate {
 }
 
 open class ChromaColorPicker: UIControl {
-    open var hexLabel: UILabel!
+    open var hexLabel: UITextField!//CopyableLabel!
     open var shadeSlider: ChromaShadeSlider!
     open var handleView: ChromaHandle!
     open var handleLine: CAShapeLayer!
@@ -101,8 +101,9 @@ open class ChromaColorPicker: UIControl {
         handleLine.strokeColor = UIColor.white.withAlphaComponent(0.2).cgColor
         
         /* Setup Color Hex Label */
-        hexLabel = CopyableLabel()
+        hexLabel = UITextField()//CopyableLabel()
         self.layoutHexLabel() //layout frame
+        hexLabel.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         hexLabel.layer.cornerRadius = 2
         hexLabel.adjustsFontSizeToFitWidth = true
         hexLabel.textAlignment = .center
@@ -111,6 +112,7 @@ open class ChromaColorPicker: UIControl {
         /* Setup Shade Slider */
         shadeSlider = ChromaShadeSlider()
         shadeSlider.delegate = self
+        shadeSlider.handleView.shadowOffset = CGSize(width: 0,height: 2)
         self.layoutShadeSlider()
         shadeSlider.addTarget(self, action: #selector(ChromaColorPicker.sliderEditingDidEnd(_:)), for: .editingDidEnd)
         
@@ -395,6 +397,19 @@ open class ChromaColorPicker: UIControl {
         // Divided by 1.75 not 2 to make it a bit lower
         hexLabel.center = CGPoint(x: self.bounds.midX, y: y/1.75)
         hexLabel.font = UIFont(name: "Menlo-Regular", size: hexLabel.bounds.height)
+    }
+
+    /*
+     Text field changes callback
+     */
+    @objc func textFieldDidChange(_ textField: UITextField) {
+        DispatchQueue.main.async {
+            let colorString = self.hexLabel.text
+            if (colorString?.replacingOccurrences(of: "#", with: "").count)! >= 6 {
+                let color = UIColor(hex: self.hexLabel.text!)
+                self.adjustToColor(color)
+            }
+        }
     }
     
     /*

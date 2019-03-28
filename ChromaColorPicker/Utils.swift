@@ -34,6 +34,26 @@ public extension UIColor{
         }
     }
     
+    convenience init(hex:String, alpha:CGFloat = 1.0) {
+        var cString:String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        var rgbValue:UInt32 = 10066329 //color #999999 if string has wrong format
+        
+        if (cString.hasPrefix("#")) {
+            cString.remove(at: cString.startIndex)
+        }
+        
+        if ((cString.count) == 6) {
+            Scanner(string: cString).scanHexInt32(&rgbValue)
+        }
+        
+        self.init(
+            red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
+            green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
+            blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
+            alpha: alpha
+        )
+    }
+    
     //Amount should be between 0 and 1
     func lighterColor(_ amount: CGFloat) -> UIColor{
         return UIColor.blendColors(color: self, destinationColor: UIColor.white, amount: amount)
@@ -73,6 +93,25 @@ public extension UIColor{
         alpha = abs(alpha / dest_alpha)
         
         return UIColor(red: r/255.0, green: g/255.0, blue: b/255.0, alpha: alpha)
+    }
+ 
+    /// Get contrast color
+    var contrastColor: UIColor {
+        if let components = self.cgColor.components {
+            if components.count >= 3 {
+                let r = components[0] * 255
+                let g = components[1] * 255
+                let b = components[2] * 255
+                let a = 1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255.0
+                if a < 0.5 {
+                    return UIColor.black
+                }
+                else {
+                    return UIColor.white
+                }
+            }
+        }
+        return UIColor.white
     }
     
 }
